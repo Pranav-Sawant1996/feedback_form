@@ -9,49 +9,60 @@ function App() {
   const[userName,setUserName]=useState('')
   const[userMessage,setUserMessage]=useState('')
   const[messageList,setMessageList]=useState('')
+  const[getMessages,setGetMessages]=useState(true)
 
- const handleSubmitFeedback=()=>{
-  if(userName==='' || userMessage===''){
-    alert('Please enter name and message')
-    return
-  }
-  fetch('https://feedback-form-testing-default-rtdb.asia-southeast1.firebasedatabase.app/ /feedback.json',
-{  method : 'POST',
-  header :{
-    'Content-Type':'application/json'
-  },
-  body : JSON.stringify({
-    userName: userName,
-    userMessage:userMessage
-  })
-}
-  )
-  .then(res => res.json())
-  .then(data => {
-    console.log(data)
-    setUserName('')
-    setUserMessage('')
-    alert('Feedback submitted successfully')
-  })
- }
+  const handleSubmitFeedback = () => {
+    console.log('hi')
+    if(userName === '' || userMessage === '') {
+      alert('Please enter your name and message')
+      return;
+    }
 
- useEffect(()=>{
-fetch('https://feedback-form-testing-default-rtdb.asia-southeast1.firebasedatabase.app/ /feedback.json')
-.then(res=> res.json() )
-.then(data=>{
-  console.log(data)
-  const loadedFeedback=[]
-  for(const key in data){
-    loadedFeedback.push({ 
-      id : key,
-      userName : data[key].userName,
-      userMessage : data[key].userMessage
+    fetch('https://feedback-form-testing-default-rtdb.asia-southeast1.firebasedatabase.app/feedback.json',
+         {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+              userName: userName,
+              userMessage: userMessage,
+          })
+        }
+    )
+    .then(res => res.json())
+    .then(data => {
+      console.log(data)
+      setUserMessage('')
+      setUserName('')
+      alert('Feedback Submitted successfully')
+      setGetMessages(true)
     })
   }
- 
-  setMessageList(loadedFeedback)
-})
- },[])
+
+ useEffect(() => {
+  if(getMessages) {
+    fetch('https://feedback-form-testing-default-rtdb.asia-southeast1.firebasedatabase.app/feedback.json')
+    .then(res => res.json())
+    .then(data => {
+      console.log(data)
+      const loadedFeedback = [];
+      for(const key in data) {
+        loadedFeedback.push({
+          id: key,
+          userName: data[key].userName,
+          userMessage: data[key].userMessage,
+        })
+      }
+      console.log(loadedFeedback)
+      setMessageList(loadedFeedback)
+     
+    })
+    setGetMessages(false)
+  }
+}, [getMessages])
+
+
 
   return (
     <div className='app-container'>
